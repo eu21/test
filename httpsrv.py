@@ -153,6 +153,6 @@ class CustomHTTPServer(http.server.HTTPServer):
 
 
 if __name__ == '__main__':
-    server = CustomHTTPServer(('', 8080))
+    server = CustomHTTPServer(('', 80))
     server.set_auth('admin', '1234')
     server.serve_forever()

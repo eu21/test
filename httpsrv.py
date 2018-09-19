@@ -28,7 +28,7 @@ current_git_commit=run_bash_command(command)
 command="cd /data/test/ && git log --pretty=format:'%h' -n 1"
 current_git_commit_short=run_bash_command(command)
 
-command="crontab -l"
+command="cat /data/test/mycron"
 crontab_l=run_bash_command(command)
 
 pid=(os.getppid())

@@ -4,4 +4,4 @@ crontab -l > mycron
 echo "1 * * * * python3 \data\test\restart_if_repo_changed.py" >> mycron
 #install new cron file
 crontab mycron
-rm mycron
+

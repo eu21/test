@@ -22,10 +22,10 @@ def run_bash_command(command):
     print ("Command exit status/return code : ", p_status)
     return output
 
-command="cd /media/Vera_media_flash16gb_8GB/1SUPPORT/OpsWorks/Test1/test/ && git log --pretty=format:'%H' -n 1"
+command="cd /data/test/ && git log --pretty=format:'%H' -n 1"
 current_git_commit=run_bash_command(command)
 
-command="cd /media/Vera_media_flash16gb_8GB/1SUPPORT/OpsWorks/Test1/test/ && git log --pretty=format:'%h' -n 1"
+command="cd /data/test/ && git log --pretty=format:'%h' -n 1"
 current_git_commit_short=run_bash_command(command)
 
 

@@ -3,6 +3,41 @@ import cgi
 import base64
 import json
 from urllib.parse import urlparse, parse_qs
+import subprocess
+import os
+
+def run_bash_command(command):
+    ## call date command ##
+    p = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
+    
+    ## Talk with date command i.e. read data from stdout and stderr. Store this info in tuple ##
+    ## Interact with process: Send data to stdin. Read data from stdout and stderr, until end-of-file is reached.  ##
+    ## Wait for process to terminate. The optional input argument should be a string to be sent to the child process, ##
+    ## or None, if no data should be sent to the child.
+    (output, err) = p.communicate()
+    
+    ## Wait for date to terminate. Get return returncode ##
+    p_status = p.wait()
+    print ("Command output : ", output)
+    print ("Command exit status/return code : ", p_status)
+    return output
+
+command="cd /media/Vera_media_flash16gb_8GB/1SUPPORT/OpsWorks/Test1/test/ && git log --pretty=format:'%H' -n 1"
+current_git_commit=run_bash_command(command)
+
+command="cd /media/Vera_media_flash16gb_8GB/1SUPPORT/OpsWorks/Test1/test/ && git log --pretty=format:'%h' -n 1"
+current_git_commit_short=run_bash_command(command)
+
+
+pid=(os.getppid())
+
+print ("PID of this script is %d" % os.getpid())
+
+#command="ps -p %d -o %cpu,%mem,cmd" % pid
+command="ps -p %d -o %%cpu,%%mem,cmd" % os.getpid()
+resource_usage_of_this_script=run_bash_command(command)
+
+
 
 
 class CustomServerHandler(http.server.BaseHTTPRequestHandler):
@@ -35,8 +70,23 @@ class CustomServerHandler(http.server.BaseHTTPRequestHandler):
 
         elif self.headers.get('Authorization') == 'Basic ' + str(key):
             self.send_response(200)
-            self.send_header('Content-type', 'application/json')
+            #self.send_header('Content-type', 'application/json')
+            self.send_header('Content-type', 'text/plain')
             self.end_headers()
+            
+            self.wfile.write(b'Current git commit: ')
+            self.wfile.write(current_git_commit)
+            self.wfile.write(b'\n')
+            self.wfile.write(b'Current git commit (short version): ')
+            self.wfile.write(current_git_commit_short)            
+            self.wfile.write(b'\n')
+            self.wfile.write(b'\n')
+            self.wfile.write(b'Resource usage of this script: ')
+            self.wfile.write(b'\n')
+            self.wfile.write(resource_usage_of_this_script)
+            
+            
+
 
             getvars = self._parse_GET()
 
@@ -53,7 +103,7 @@ class CustomServerHandler(http.server.BaseHTTPRequestHandler):
                 # Do some work
                 pass
 
-            self.wfile.write(bytes(json.dumps(response), 'utf-8'))
+            #self.wfile.write(bytes(json.dumps(response), 'utf-8'))
         else:
             self.do_AUTHHEAD()
 
@@ -93,8 +143,9 @@ class CustomServerHandler(http.server.BaseHTTPRequestHandler):
             }
 
             base_path = urlparse(self.path).path
-            if base_path == '/path1':
+            if base_path == '/hello':
                 # Do some work
+                print('HELLO!')
                 pass
             elif base_path == '/path2':
                 # Do some work

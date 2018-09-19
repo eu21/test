@@ -20,7 +20,7 @@ pip3 install paramiko boto3 --user
 import os
 from botocore.exceptions import ClientError
 import subprocess
-import os
+import sys
 
 
 def run_bash_command(command):
@@ -206,7 +206,7 @@ if my_ssh_connect_section:
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     def my_ssh_command_bg(mycommand):
-        client.connect(hostname='ec2-34-245-10-48.eu-west-1.compute.amazonaws.com', username="ec2-user", pkey=key)
+        client.connect(hostname=str(instance.public_dns_name), username="ec2-user", pkey=key)
         transport = client.get_transport()
         channel = transport.open_session()
         channel.exec_command(mycommand)
@@ -290,7 +290,7 @@ if my_ssh_connect_section:
     '''
 
     
-    next_command='yum install python35 python3 -y'
+    next_command='sudo yum install python35 python3 -y'
     print ("***")
     print (next_command)
     print ("***")
@@ -299,20 +299,33 @@ if my_ssh_connect_section:
     except Exception as e:
             print (e)
     
-
-
+    if len(sys.argv) > 1:
+        if sys.argv[1]=='httpsrv':   
             
-    print ("***")
-    next_command='sudo python3 /data/test/httpsrv.py /dev/null 2>&1 &'
-    print (next_command)
-    print ("BEGIN of output")
-    try:
-        my_ssh_command_bg(next_command)
-    except Exception as e:
-            print (e)
-            
-    print ("END of output")
-    print ("***")         
+            print ("***")
+            next_command='sudo kill $(pgrep -f \'python3 /data/test/httpsrv.py\')'
+            #next_command='sudo pkill -f httpsrv.py'
+            print (next_command)
+            print ("BEGIN of output")
+            try:
+                my_ssh_command(next_command)
+            except Exception as e:
+                    print (e)
+            print ("END of output")
+            print ("***")         
+                    
+            print ("***")
+            next_command='sudo python3 /data/test/httpsrv.py > /dev/null 2>&1 &'
+            print (next_command)
+            print ("BEGIN of output")
+            try:
+                my_ssh_command_bg(next_command)
+            except Exception as e:
+                    print (e)
+                    
+            print ('httpsrv started. Visit our site %s.' % str(instance.public_dns_name))
+            print ("END of output")
+            print ("***")         
 
 
 

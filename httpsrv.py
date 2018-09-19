@@ -28,6 +28,8 @@ current_git_commit=run_bash_command(command)
 command="cd /data/test/ && git log --pretty=format:'%h' -n 1"
 current_git_commit_short=run_bash_command(command)
 
+command="crontab -l"
+crontab_l=run_bash_command(command)
 
 pid=(os.getppid())
 
@@ -84,6 +86,12 @@ class CustomServerHandler(http.server.BaseHTTPRequestHandler):
             self.wfile.write(b'Resource usage of this script: ')
             self.wfile.write(b'\n')
             self.wfile.write(resource_usage_of_this_script)
+            self.wfile.write(b'\n')
+            self.wfile.write(b'\n')
+            self.wfile.write(b'crontab -l:')
+            self.wfile.write(b'\n')
+            self.wfile.write(crontab_l)
+            
             
             
 

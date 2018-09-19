@@ -24,7 +24,9 @@ sed 's/\// /g') | cut -f1) ] && echo up to date || echo not up to date")
 
 if up_to_date=="not up to date":
             run_bash_command('sudo kill $(pgrep -f \'python3 /data/test/httpsrv.py\')')
+            run_bash_command('cd /data/test && sudo git pull origin master')
             run_bash_command('sudo python3 /data/test/httpsrv.py > /dev/null 2>&1 &')
+            
                         
 
 

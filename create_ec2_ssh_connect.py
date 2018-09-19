@@ -308,7 +308,7 @@ if my_ssh_connect_section:
             print (next_command)
             print ("BEGIN of output")
             try:
-                my_ssh_command(next_command)
+                my_ssh_command_bg(next_command)
             except Exception as e:
                     print (e)
             print ("END of output")
@@ -323,7 +323,7 @@ if my_ssh_connect_section:
             except Exception as e:
                     print (e)
                     
-            print ('httpsrv started. Visit our site %s.' % str(instance.public_dns_name))
+            print ('httpsrv started. Visit our site http://%s/' % str(instance.public_dns_name))
             print ("END of output")
             print ("***")         
 

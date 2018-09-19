@@ -331,8 +331,8 @@ if my_ssh_connect_section:
 
     if len(sys.argv) > 2:
         if sys.argv[2]=='cron':
-                        print ("***")
-            next_command='\\bin\\bash \\data\\test\\set_cron_task.sh'
+            print ("***")
+            next_command='/bin/bash /data/test/set_cron_task.sh'
             print (next_command)
             print ("BEGIN of output")
             try:

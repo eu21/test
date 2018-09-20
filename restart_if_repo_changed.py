@@ -22,6 +22,8 @@ def run_bash_command(command):
 up_to_date = run_bash_command("cd /data/test && [ $(git rev-parse HEAD) = $(git ls-remote $(git rev-parse --abbrev-ref @\{u\} | \
 sed 's/\// /g') | cut -f1) ] && echo up to date || echo not up to date")
 
+print(up_to_date)
+
 if up_to_date=="not up to date\\n":
             run_bash_command('sudo kill $(pgrep -f \'python3 /data/test/httpsrv.py\')')
             run_bash_command('cd /data/test && sudo git pull origin master')

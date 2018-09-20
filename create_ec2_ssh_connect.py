@@ -1,27 +1,38 @@
 #!/usr/bin/env python3
+'''
+Make sure that you have AWS credentials file, wich you can create mannually
+
+cat ~/.aws/credentials
+[ireland]
+aws_access_key_id = AKIAIOSFODNN7EXAMPLE                                #DON'T TRY. THESE ARE FAKE
+aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY        #DON'T TRY. THESE ARE FAKE
+region = eu-west-1
 
 '''
-Install requirements
-
-Install python3 manually for this script to start working.
-sudo yum -y install python35 python3 git
-
-sudo yum -y install git
-
-curl -O https://bootstrap.pypa.io/get-pip.py
-sudo python3 get-pip.py
-#pip and pip3 installed
-
-pip3 install paramiko boto3 --user
-
 '''
 
+You are encouraged to set "mashine_name" variable to something meaningfull.
+machine_name='Kusnetsov008'
 
+ORDER MATTERS
+1. ./create_ec2_ssh_connect.py install_dependences
+2. ./create_ec2_ssh_connect.py httpsrv cron
+3. ./create_ec2_ssh_connect.py httpsrv
+
+install_dependences - install Python, git, pip
+cron - Install cron job on remote Linux mashine
+httpsrv - Install http server on remote EC2 instance
+
+'''
 import os
 from botocore.exceptions import ClientError
 import subprocess
 import sys
-import time
+import boto3
+import botocore
+import paramiko
+
+machine_name='kusnetsov008'
 
 def run_bash_command(command):
     ## call date command ##
@@ -40,22 +51,10 @@ def run_bash_command(command):
     return output
 
 
-
-print(run_bash_command("sudo yum -y install git"))
-
-#pip and pip3 install
-run_bash_command("curl -O https://bootstrap.pypa.io/get-pip.py")
-run_bash_command("sudo python3 get-pip.py")
-#pip and pip3 installed
-
-run_bash_command("pip3 install paramiko boto3 --user")
-
-
-
-import boto3
-import botocore
-import paramiko
-
+if len(sys.argv) > 1:
+    if sys.argv[1]=='install_dependences':  
+        run_bash_command("sudo /bin/bash ./install_dependences.sh")
+        exit()
 
 s = boto3.Session(profile_name='ireland')
 ec2 = s.resource('ec2')
@@ -63,7 +62,7 @@ ec2_client = s.client('ec2')
 
 #ec2_client = boto3.resource('ec2', region_name="eu-west-1")
 
-machine_name='kusnetsov006'
+
 
 # Check to see if specified keypair already exists.
 # If we get an InvalidKeyPair.NotFound error back from EC2,
@@ -212,10 +211,6 @@ if my_create_volume:
 instance.load()
 print(instance.public_dns_name)
 
-
-
-#time.sleep(120) # delays for 1 minute
-
 key_file=str(machine_name + '.pem')
 
 if my_ssh_connect_section:
@@ -246,7 +241,7 @@ if my_ssh_connect_section:
         stdin.flush()
         result = stderr.read()
         if len(result)  > 0:
-            print("hit error \n" + str(result))
+            print("MESSAGE \n" + str(result))
         data = stdout.read()
         print(data)
         client.close()

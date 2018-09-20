@@ -19,12 +19,20 @@ done
 
 sudo $pkg_manager -y install python3 python35 git
 
+sudo $pkg_manager -y install python-setuptools
+sudo easy_install pip
+
 curl -O https://bootstrap.pypa.io/get-pip.py
 sudo python3 get-pip.py
 #pip and pip3 installed
 
-sudo pip3 install paramiko boto3 --user
+sudo pip3 install paramiko --user
+sudo pip3 install botocore --user
+sudo pip3 install boto3 --user
 
+sudo pip install paramiko --user
+sudo pip install botocore --user
+sudo pip install boto3 --user
 
 
 

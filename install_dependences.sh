@@ -17,9 +17,9 @@ done
 
 #echo $pkg_manager
 
-sudo $pkg_manager -y install python3 python35 git
+sudo $pkg_manager install python3 python35 git -y
 
-sudo $pkg_manager -y install python-setuptools
+sudo $pkg_manager install python-setuptools -y
 sudo easy_install pip
 
 curl -O https://bootstrap.pypa.io/get-pip.py
@@ -35,4 +35,11 @@ sudo pip install botocore --user
 sudo pip install boto3 --user
 
 
+pip3 install paramiko --user
+pip3 install botocore --user
+pip3 install boto3 --user
+
+pip install paramiko --user
+pip install botocore --user
+pip install boto3 --user
 

@@ -14,7 +14,7 @@ def run_bash_command(command):
     ## Wait for date to terminate. Get return returncode ##
     p_status = p.wait()
     print ("Command output : ", output)
-    print ("Command exit status/return code : ", p_status)
+    print ("Command exit status or return code : ", p_status)
     return output
 
 

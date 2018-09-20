@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 '''
+This script shows simple Continuous Delivery (CD) and Continuous Deployment (CD) approches.
+
 Make sure that you have AWS credentials file, wich you can create mannually
 
 cat ~/.aws/credentials
@@ -22,15 +24,12 @@ ORDER MATTERS
 install_dependences - install Python, git, pip
 cron - Install cron job on remote Linux mashine
 httpsrv - Install http server on remote EC2 instance
-
 '''
+
 import os
-from botocore.exceptions import ClientError
 import subprocess
 import sys
-import boto3
-import botocore
-import paramiko
+
 
 machine_name='kusnetsov008'
 
@@ -55,6 +54,12 @@ if len(sys.argv) > 1:
     if sys.argv[1]=='install_dependences':  
         run_bash_command("sudo /bin/bash ./install_dependences.sh")
         exit()
+
+from botocore.exceptions import ClientError
+import boto3
+import botocore
+import paramiko
+
 
 s = boto3.Session(profile_name='ireland')
 ec2 = s.resource('ec2')

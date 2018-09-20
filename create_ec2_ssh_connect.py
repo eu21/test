@@ -21,7 +21,7 @@ import os
 from botocore.exceptions import ClientError
 import subprocess
 import sys
-
+import time
 
 def run_bash_command(command):
     ## call date command ##
@@ -63,7 +63,7 @@ ec2_client = s.client('ec2')
 
 #ec2_client = boto3.resource('ec2', region_name="eu-west-1")
 
-machine_name='Kusnetsov06'
+machine_name='kusnetsov006'
 
 # Check to see if specified keypair already exists.
 # If we get an InvalidKeyPair.NotFound error back from EC2,
@@ -87,6 +87,7 @@ except ClientError as e:
         # your private key.
         KeyPairOut = str(key_pair.key_material)
         outfile.write(KeyPairOut)
+        outfile.close()
         os.chmod(my_key_name + '.pem', 0o600)
     else:
         print ('Keypair: %s already exists' % my_key_name)
@@ -118,39 +119,48 @@ InstanceId=list_instances_by_tag_value('Name', machine_name)
 #Accessing Values in List
 #print ("InstanceId: ", InstanceId[0])
 
-if len(InstanceId) == 0:
-    print ("Creating new EC2 instance...")
-    instances = ec2.create_instances(
-    ImageId='ami-047bb4163c506cd98', 
-    MinCount=1, 
-    MaxCount=1,
-    KeyName=my_key_name,
-    InstanceType="t2.micro"
-    )
-    print ("EC2 instance created.")
-    instance_id = instances[0].instance_id
-    instance = instances[0]
-    my_create_volume=True
-    my_ssh_connect_section=True
-else:
-    print ("EC2 instance exists, InstanceId = ", InstanceId[0])
-    instance_id = InstanceId[0]
-    #To get instance without creating new instance
-    instance = ec2.Instance(instance_id)
-    my_create_volume=False
-    my_ssh_connect_section=False
+create_new_EC2=True
+
+if create_new_EC2:
+    if len(InstanceId) == 0:
+        print ("Creating new EC2 instance...")
+        instances = ec2.create_instances(
+        ImageId='ami-047bb4163c506cd98', 
+        MinCount=1, 
+        MaxCount=1,
+        KeyName=my_key_name,
+        InstanceType="t2.micro"
+        )
+        print ("EC2 instance created.")
+        instance_id = instances[0].instance_id
+        instance = instances[0]
+        my_create_volume=True
+        my_ssh_connect_section=True
+        ###Give name to EC2 instance 
+        ec2.create_tags(
+        Resources=[instance_id], Tags=[{'Key':'Name', 'Value': machine_name}]
+        )
+    else:
+        print ("EC2 instance exists, InstanceId = ", InstanceId[0])
+        instance_id = InstanceId[0]
+        #To get instance without creating new instance
+        instance = ec2.Instance(instance_id)
+        my_create_volume=False
+        my_ssh_connect_section=True
+
+
+
+#Check if EC2 instance exists
+InstanceId=list_instances_by_tag_value('Name', machine_name)
+#print(InstanceId)
+instance_id = InstanceId[0]
+#To get instance without creating new instance
+instance = ec2.Instance(instance_id)
 
 # Wait for the instance to enter the running state
 instance.wait_until_running()
 
-# Reload the instance attributes
-instance.load()
-print(instance.public_dns_name)
 
-###Give name to EC2 instance 
-ec2.create_tags(
-    Resources=[instance_id], Tags=[{'Key':'Name', 'Value': machine_name}]
-)
 
 ###Create security group if does not exist.
 try:
@@ -180,8 +190,8 @@ if my_create_volume:
     #print (volume)
     #print(volume_id)
 
-    #waiter = ec2_client.get_waiter('instance_running')
-    #waiter.wait(InstanceIds=[instance_id])
+    waiter = ec2_client.get_waiter('instance_running')
+    waiter.wait(InstanceIds=[instance_id])
 
     try:
         ###Attach volume to ec2 instance
@@ -197,13 +207,28 @@ if my_create_volume:
         if e.response['Error']['Code'] == 'IncorrectState':
             print ('Group %s exists. We will use it. ' % grp_name)
 
-    
-my_ssh_connect_section=True
+
+# Reload the instance attributes
+instance.load()
+print(instance.public_dns_name)
+
+
+
+#time.sleep(120) # delays for 1 minute
+
+key_file=str(machine_name + '.pem')
 
 if my_ssh_connect_section:
-    key = paramiko.RSAKey.from_private_key_file(machine_name + '.pem')
-    client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    
+    try:
+        key = paramiko.RSAKey.from_private_key_file(key_file)
+        client = paramiko.SSHClient()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    except Exception as e:
+            print (e)
+
+    
+
 
     def my_ssh_command_bg(mycommand):
         client.connect(hostname=str(instance.public_dns_name), username="ec2-user", pkey=key)
@@ -228,12 +253,14 @@ if my_ssh_connect_section:
         #break
         
         
+
     try:    
         my_ssh_command('sudo mkfs -t ext4 /dev/sds')
     except Exception as e:
-            print (e)
+            print (e)    
+     
     try:        
-        my_ssh_command('sudo mkdir /data')
+        my_ssh_command('sudo mkdir /data -p')
     except Exception as e:
             print (e)
     try:
@@ -251,8 +278,6 @@ if my_ssh_connect_section:
     except Exception as e:
             print (e)
 
-
-
     try:
         my_ssh_command('cd /data && sudo git clone https://github.com/eu21/test.git')
     except Exception as e:
@@ -263,42 +288,24 @@ if my_ssh_connect_section:
     print ("***")
     next_command='cd /data/test && sudo git pull origin master'
     print (next_command)
-    print ("BEGIN of output")
+    print ("start of output")
     try:
         my_ssh_command(next_command)
     except Exception as e:
             print (e)
             
-    print ("END of output")
+    print ("finish of output")
     print ("***")        
+  
 
-
-    '''
-    try:
-        my_ssh_command('cd /data/test && ls')
-    except Exception as e:
-            print (e)
-    '''
-
-
-
-    '''
-    try:
-        my_ssh_command('sudo yum update')
-    except Exception as e:
-            print (e)
-    '''
-
-    
     next_command='sudo yum install python35 python3 -y'
-    print ("***")
     print (next_command)
-    print ("***")
     try:
         my_ssh_command(next_command)
     except Exception as e:
             print (e)
-    
+    print ("***")
+        
     if len(sys.argv) > 1:
         if sys.argv[1]=='httpsrv':   
             
@@ -322,8 +329,6 @@ if my_ssh_connect_section:
                 my_ssh_command_bg(next_command)
             except Exception as e:
                     print (e)
-                    
-            print ('httpsrv started. Visit our site http://%s/' % str(instance.public_dns_name))
             print ("END of output")
             print ("***")         
 
@@ -332,7 +337,7 @@ if my_ssh_connect_section:
     if len(sys.argv) > 2:
         if sys.argv[2]=='cron':
             print ("***")
-            next_command='/bin/bash /data/test/set_cron_task.sh'
+            next_command='sudo service crond start && sudo chmod +x /data/test/restart_if_repo_changed.py && /bin/bash /data/test/set_cron_task.sh'
             print (next_command)
             print ("BEGIN of output")
             try:
@@ -342,4 +347,8 @@ if my_ssh_connect_section:
                     
             print ("END of output")
             print ("***") 
-            
+
+print ('httpsrv started. URL to our site http://%s/' % str(instance.public_dns_name))
+print ('SSH on port 22 using command:')            
+print ('ssh -i %s ec2-user@%s' % (key_file, str(instance.public_dns_name)))
+

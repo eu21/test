@@ -347,8 +347,9 @@ if my_ssh_connect_section:
                     
             print ("END of output")
             print ("***") 
-
-print ('httpsrv started. URL to our site http://%s/' % str(instance.public_dns_name))
+print ("-------------------------") 
+print ('httpsrv has started. URL to our site http://%s/' % str(instance.public_dns_name))
+print ("***") 
 print ('SSH on port 22 using command:')            
 print ('ssh -i %s ec2-user@%s' % (key_file, str(instance.public_dns_name)))
-
+print ("-------------------------") 

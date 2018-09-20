@@ -88,7 +88,7 @@ class CustomServerHandler(http.server.BaseHTTPRequestHandler):
             self.wfile.write(resource_usage_of_this_script)
             self.wfile.write(b'\n')
             self.wfile.write(b'\n')
-            self.wfile.write(b'crontab -l:')
+            self.wfile.write(b'Output of "crontab -l" command:')
             self.wfile.write(b'\n')
             self.wfile.write(crontab_l)
             

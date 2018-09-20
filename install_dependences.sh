@@ -33,8 +33,8 @@ python <(curl https://bootstrap.pypa.io/get-pip.py) --user
 pybase=$(python -c 'import site; print site.USER_BASE,')
 echo export PATH=\"$pybase/bin:\$PATH\" >> ~/.bash_profile
 
-sudo pip3 install paramiko --user
-sudo pip3 install botocore --user
-sudo pip3 install boto3 --user
+pip3 install paramiko --user
+pip3 install botocore --user
+pip3 install boto3 --user
 
 

@@ -1,4 +1,4 @@
-#write out current crontab
+#write out current crontab to myfile
 crontab -l > mycron
 #echo new cron into cron file
 echo "1 * * * * python3 /data/test/restart_if_repo_changed.py" >> mycron

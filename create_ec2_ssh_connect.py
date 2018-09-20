@@ -17,13 +17,16 @@ You are encouraged to set "mashine_name" variable to something meaningfull.
 machine_name='Kusnetsov008'
 
 ORDER MATTERS
-1. ./create_ec2_ssh_connect.py install_dependences
-2. ./create_ec2_ssh_connect.py httpsrv cron
+1. sudo ./create_ec2_ssh_connect.py install_dependences
+2. ./create_ec2_ssh_connect.py httpsrv cron kusnetsov009
 3. ./create_ec2_ssh_connect.py httpsrv
+
 
 install_dependences - install Python, git, pip
 cron - Install cron job on remote Linux mashine
 httpsrv - Install http server on remote EC2 instance
+kusnetsov009 - newname without spaces
+
 '''
 
 import os
@@ -32,6 +35,8 @@ import sys
 
 
 machine_name='kusnetsov008'
+if len(sys.argv) > 3:
+    machine_name=str(sys.argv[3])
 
 def run_bash_command(command):
     ## call date command ##
@@ -54,6 +59,8 @@ if len(sys.argv) > 1:
     if sys.argv[1]=='install_dependences':  
         run_bash_command("sudo /bin/bash ./install_dependences.sh")
         exit()
+        
+
 
 from botocore.exceptions import ClientError
 import boto3
